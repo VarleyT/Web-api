@@ -3,6 +3,7 @@ package online.fycloud.webapi.core.exception;
 import lombok.extern.slf4j.Slf4j;
 import online.fycloud.webapi.core.common.R;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -86,4 +87,10 @@ public class GlobalExceptionHandler {
         return R.error(404, "页面不存在！");
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
+    @ResponseStatus
+    public R<String> notReadableException(HttpMessageNotReadableException e) {
+        return R.error("数据异常！请检查请求数据！");
+    }
 }

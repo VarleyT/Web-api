@@ -2,6 +2,7 @@ package online.fycloud.webapi.core.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import online.fycloud.webapi.core.data.LoginUser;
 import online.fycloud.webapi.core.data.SignInUser;
 import online.fycloud.webapi.core.data.SignUpUser;
 import online.fycloud.webapi.core.entity.User;
@@ -43,7 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public String login(SignInUser user) {
+    public Object login(SignInUser user) {
         String userName = user.getUsername();
         String passwd = user.getPassword();
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -63,6 +64,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (result.getStatus() == 0) {
             return "账号已封禁！";
         }
-        return null;
+        return new LoginUser()
+                .setUserName(result.getUserName())
+                .setId(result.getId());
     }
 }

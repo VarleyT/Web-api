@@ -20,8 +20,9 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户登录
+     *
      * @param user
      * @return 错误信息
      */
-    String login(SignInUser user);
+    Object login(SignInUser user);
 }

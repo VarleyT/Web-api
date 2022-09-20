@@ -20,7 +20,10 @@ public class SignUpUser {
     private String username;
 
     @NotEmpty(message = "密码为空")
-    @Pattern(regexp = "[a-zA-Z0-9-*/+.~@#$%^&()]*",message = "密码格式错误")
+    @Pattern(regexp = "[a-zA-Z0-9-*/+.~@#$%^&()]*", message = "密码格式错误")
     @Size(min = 6, max = 20, message = "密码应在6-20之间")
     private String password;
+
+    @NotEmpty(message = "缺少参数(verify)或参数值为空")
+    private String verify;
 }

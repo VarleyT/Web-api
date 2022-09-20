@@ -1,22 +1,22 @@
 package online.fycloud.webapi.core.controller;
 
 import cn.hutool.captcha.CaptchaUtil;
-import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.captcha.ShearCaptcha;
-import cn.hutool.captcha.generator.MathGenerator;
 import lombok.extern.slf4j.Slf4j;
+import online.fycloud.webapi.core.annotation.CheckLogin;
 import online.fycloud.webapi.core.annotation.LimitRequest;
 import online.fycloud.webapi.core.common.R;
+import online.fycloud.webapi.core.data.LoginUser;
 import online.fycloud.webapi.core.data.SignInUser;
 import online.fycloud.webapi.core.data.SignUpUser;
 import online.fycloud.webapi.core.service.UserService;
+import online.fycloud.webapi.core.service.UserSignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 
 /**
@@ -33,6 +33,9 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserSignService userSignService;
+
     /**
      * 登录
      *
@@ -48,27 +51,34 @@ public class LoginController {
         if (obj != null) {
             return R.success("用户已登录!");
         }
-        String msg = userService.login(user);
-        if (msg == null) {
-            request.getSession().setAttribute(LOGIN_USER, user.getUsername());
+        Object object = userService.login(user);
+        if (object instanceof LoginUser) {
+            LoginUser loginUser = (LoginUser) object;
+            request.getSession().setAttribute(LOGIN_USER, loginUser);
             return R.success("登录成功");
         }
-        return R.error(msg);
+        return R.error((String) object);
     }
 
+    /**
+     * 用户注册
+     *
+     * @param request
+     * @param user
+     * @return
+     */
     @LimitRequest
     @PostMapping("/register")
-    public R<String> register(HttpServletRequest request,
-                              @RequestBody @Validated SignUpUser user,
-                              @RequestParam(value = "verify") @NotEmpty String code) {
-        Object obj;
+    public Object register(HttpServletRequest request,
+                           @RequestBody @Validated SignUpUser user) {
+        String verifyCode;
         try {
-            obj = request.getSession(false).getAttribute(VERIFY_CODE);
+            Object obj = request.getSession(false).getAttribute(VERIFY_CODE);
+            verifyCode = (String) obj;
         } catch (NullPointerException e) {
             return R.error("请先获取验证码！");
         }
-        String verifyCode = (String) obj;
-        if (!verifyCode.equals(code)) {
+        if (!verifyCode.equals(user.getVerify())) {
             return R.error("验证码错误！");
         }
         String msg = userService.register(user);
@@ -78,6 +88,12 @@ public class LoginController {
         return R.error(msg);
     }
 
+    /**
+     * 用户登出
+     *
+     * @param request
+     * @return
+     */
     @LimitRequest
     @GetMapping("/logout")
     public R<String> logout(HttpServletRequest request) {
@@ -88,13 +104,39 @@ public class LoginController {
         return R.success();
     }
 
+    /**
+     * 验证码获取
+     *
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
     @LimitRequest(time = 30000, count = 3)
     @GetMapping("/verify")
     public R<String> verify(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ShearCaptcha captcha = CaptchaUtil.createShearCaptcha(200, 100, 4, 4);
+        ShearCaptcha captcha = CaptchaUtil.createShearCaptcha(300, 100, 4, 4);
         captcha.write(response.getOutputStream());
         String verifyCode = captcha.getCode();
         request.getSession().setAttribute(VERIFY_CODE, verifyCode);
         return null;
+    }
+
+    /**
+     * 用户签到
+     *
+     * @param request
+     * @return
+     */
+    @CheckLogin
+    @LimitRequest
+    @GetMapping("/sign")
+    public R<String> sign(HttpServletRequest request) {
+        LoginUser loginUser = (LoginUser) request.getSession(false).getAttribute(LOGIN_USER);
+        if (loginUser == null) {
+            log.error("签到失败！loginUser为空！");
+        }
+        String msg = userSignService.sign(loginUser);
+        return R.error(msg);
     }
 }

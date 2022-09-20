@@ -16,9 +16,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements Serializable {
-    /**
-     * id
-     */
+    @TableId(type = IdType.AUTO)
     public Integer id;
     /**
      * 用户名

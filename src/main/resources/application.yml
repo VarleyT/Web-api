@@ -7,6 +7,10 @@ spring:
     username: ${DB.username}
     password: ${DB.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      max-lifetime: 30000
+      minimum-idle: 3
+      maximum-pool-size: 30
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -26,3 +30,4 @@ server:
       prefix: access_log
       rotate: true
       suffix: .log
+      directory: logs

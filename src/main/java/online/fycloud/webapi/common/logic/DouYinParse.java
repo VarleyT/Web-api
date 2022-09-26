@@ -6,7 +6,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import online.fycloud.webapi.common.entity.douyin.*;
+import online.fycloud.webapi.common.data.douyin.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package online.fycloud.webapi.common.entity.douyin;
+package online.fycloud.webapi.common.data.douyin;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

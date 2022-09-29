@@ -40,11 +40,16 @@ public class GenShinAnalyse {
      * 计数器
      */
     private int count;
+    /**
+     * 抽卡次数记录
+     */
+    private List<Integer> arrList;
 
     public GenShinAnalyse(String url) {
         genShinUrl = new GenShinUrl(url);
         prayPoolInfos = new ArrayList<>();
         genShinPrayInfo = new GenShinPrayInfo();
+        arrList = new ArrayList<>();
     }
 
     public GenShinPrayInfo analyse() {
@@ -77,11 +82,23 @@ public class GenShinAnalyse {
             String url = genShinUrl.getUrl();
             String endId = getInfo(url, prayPoolInfo);
             if (endId == null) {
+                arrList.add(count);
+                count = 0;
                 break;
             }
             genShinUrl.nextPage(endId);
             ThreadUtil.sleep(SLEEP_TIME);
         } while (true);
+        if (arrList.size() != 0) {
+            prayPoolInfo.setLast(arrList.get(0));
+            if (arrList.size() > 1) {
+                // 五星上次抽卡记录
+                for (int i = 1; i <= prayPoolInfo.getStar5_list().size(); i++) {
+                    prayPoolInfo.getStar5_list().get(i - 1).setLast(arrList.get(i));
+                }
+            }
+        }
+        arrList.clear();
         prayPoolInfo.setPercent(NumberUtil.formatPercent(prayPoolInfo.getStar5_list().size() * 1.0 / prayPoolInfo.getTotal(), 2));
         return prayPoolInfo;
     }
@@ -93,11 +110,12 @@ public class GenShinAnalyse {
         Map<String, Object> data = (Map<String, Object>) result.get("data");
         List<JSONObject> list = (List<JSONObject>) data.get("list");
         for (JSONObject obj : list) {
+            poolInfo.count();
             String rankType = obj.getString("rank_type");
             if (rankType.equals("3") || rankType.equals("4")) {
-                poolInfo.count();
                 count++;
             } else {
+                arrList.add(count);
                 String name = obj.getString("name");
                 String itemType = obj.getString("item_type");
                 String time = obj.getString("time");
@@ -105,9 +123,8 @@ public class GenShinAnalyse {
                 star5Info.setName(name);
                 star5Info.setItem_type(itemType);
                 star5Info.setTime(time);
-                star5Info.setLast(count);
                 poolInfo.addStar5Item(star5Info);
-                count = 0;
+                count = 1;
             }
             id = obj.getString("id");
         }

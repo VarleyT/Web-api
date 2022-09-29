@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PrayPoolInfo {
+public class PrayPoolInfo implements Serializable {
     /**
      * 祈愿池名称
      */
@@ -31,6 +32,10 @@ public class PrayPoolInfo {
      * 综合概率
      */
     private String percent;
+    /**
+     * 距离上次五星
+     */
+    private int last;
     /**
      * 5星信息
      */

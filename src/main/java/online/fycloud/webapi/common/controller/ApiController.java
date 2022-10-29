@@ -2,19 +2,21 @@ package online.fycloud.webapi.common.controller;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HttpStatus;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import online.fycloud.webapi.common.data.douyin.DouYin;
 import online.fycloud.webapi.common.data.genshin.GenShinPrayInfo;
 import online.fycloud.webapi.common.data.genshin.GenShinRequestUrl;
+import online.fycloud.webapi.common.entity.FreeGame;
 import online.fycloud.webapi.common.logic.DouYinParse;
 import online.fycloud.webapi.common.logic.GenShinAnalyse;
+import online.fycloud.webapi.common.service.FreeGameService;
 import online.fycloud.webapi.core.annotation.LimitRequest;
 import online.fycloud.webapi.core.common.R;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotEmpty;
@@ -26,7 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/API")
+@RequestMapping(value = "/API")
 public class ApiController {
     /**
      * 抖音视频解析
@@ -55,8 +57,8 @@ public class ApiController {
 
     /**
      * 原神抽卡分析
-     *
-     * @// TODO: 2022/9/26 同一时间只能有一个用户访问
+     * <p>
+     * TODO: 2022/9/26 同一时间只能有一个用户访问
      */
     @LimitRequest
     @PostMapping("/genshin")
@@ -74,5 +76,14 @@ public class ApiController {
             return R.error("获取数据失败，请检查链接是否有效，或者稍后重试");
         }
         return R.success(genShinPrayInfo);
+    }
+
+    @Autowired
+    private FreeGameService freeGameService;
+
+    @GetMapping("/freegame")
+    public String freeGame() {
+        List<FreeGame> list = freeGameService.getInfos();
+        return JSON.toJSONString(R.success(list), SerializerFeature.WriteNullListAsEmpty);
     }
 }

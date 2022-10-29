@@ -3,13 +3,13 @@ spring:
     active: dev
 
   datasource:
-    url: jdbc:mysql://${DB.host}:${DB.port:3306}/${DB.database}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://${DB.host}:${DB.port:3306}/${DB.database}?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${DB.username}
     password: ${DB.password}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       max-lifetime: 30000
-      minimum-idle: 3
+      minimum-idle: 5
       maximum-pool-size: 30
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
@@ -31,3 +31,9 @@ server:
       rotate: true
       suffix: .log
       directory: logs
+
+API:
+  Censys:
+    Authorization: ${censys_secret}
+    # 网站状态查询
+    queryAPI: "https://search.censys.io/api/v2/hosts/"

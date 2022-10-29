@@ -1,5 +1,6 @@
 package online.fycloud.webapi.core.common;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 /**
@@ -13,14 +14,17 @@ public class R<T> {
     /**
      * 响应代码
      */
+    @JSONField(ordinal = 1)
     private Integer code;
     /**
      * 响应信息
      */
+    @JSONField(ordinal = 2)
     private String msg;
     /**
      * 数据
      */
+    @JSONField(ordinal = 3)
     private T data;
     public static <T> R<T> success() {
         R<T> r = new R<>();

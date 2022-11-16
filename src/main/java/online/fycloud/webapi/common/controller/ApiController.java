@@ -19,8 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author VarleyT
@@ -28,23 +28,42 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "/API")
+@RequestMapping(value = {"/API", "/api"})
 public class ApiController {
     /**
      * 抖音视频解析
      *
-     * @param url
+     * @param getUrl
+     * @param map
+     * @param response
      * @return
      */
     @LimitRequest
-    @PostMapping("/douyin")
-    public R<DouYin> douyin(@RequestBody @NotEmpty String url, HttpServletResponse response) {
+    @RequestMapping(value = "/douyin", method = {RequestMethod.GET, RequestMethod.POST})
+    public R<DouYin> douyin(@RequestParam(name = "url", required = false) String getUrl,
+                            @RequestBody(required = false) Map<String, String> map,
+                            HttpServletResponse response) {
+        log.info("getUrl: {}", getUrl);
+        log.info("map: {}", map);
         final String REGEX = "https://v\\.douyin\\.com/\\w{7}/";
-        List<String> list = ReUtil.findAll(REGEX, url, 0);
-        if (list.isEmpty()) {
-            log.info("不是一个正确的链接：" + url);
+        List<String> list = null;
+        if (getUrl != null && getUrl.length() > 0) {
+            list = ReUtil.findAll(REGEX, getUrl, 0);
+        } else {
+            if (map != null && map.size() != 0) {
+                if (map.containsKey("url")) {
+                    String url = map.get("url");
+                    list = ReUtil.findAll(REGEX, url, 0);
+                }
+            } else {
+                response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
+                return R.error("缺少请求参数！");
+            }
+        }
+        if (list != null && list.isEmpty()) {
+            log.info("不是一个正确的链接：getUrl: {}, map: {}", getUrl, map);
             response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
-            return R.error("请输入正确的链接");
+            return R.error("错误的抖音链接！请检查链接是否正确或者是否包含（#、&）");
         }
         String originalUrl = list.get(0);
         DouYin douyin = DouYinParse.parse(originalUrl);

@@ -19,8 +19,8 @@ import java.util.Arrays;
 /**
  * @author VarleyT
  */
-@ControllerAdvice
 @Slf4j
+@ControllerAdvice
 public class GlobalExceptionHandler {
     /**
      * 实体绑定异常
@@ -69,9 +69,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
     public R<String> httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        return R.error(500, "请使用正确的请求类型：" + Arrays.toString(e.getSupportedMethods()));
+        return R.error("请使用正确的请求类型：" + Arrays.toString(e.getSupportedMethods()));
     }
 
     /**
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public R<String> notFoundException(NoHandlerFoundException e) {
-        return R.error(404, "页面不存在！");
+        return R.error("页面不存在！");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -92,5 +92,17 @@ public class GlobalExceptionHandler {
     @ResponseStatus
     public R<String> notReadableException(HttpMessageNotReadableException e) {
         return R.error("数据异常！请检查请求数据！");
+    }
+
+    @ExceptionHandler(ServerException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public R<String> serverException(ServerException e) {
+        switch (e.getErrorCode()) {
+            case INPUT_ERROR:
+            case HANDLE_ERROR:
+            default:
+                return R.error(e.getErrorMsg());
+        }
     }
 }

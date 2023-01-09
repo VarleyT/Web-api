@@ -9,6 +9,7 @@ import online.fycloud.webapi.core.common.R;
 import online.fycloud.webapi.core.data.LoginUser;
 import online.fycloud.webapi.core.data.SignInUser;
 import online.fycloud.webapi.core.data.SignUpUser;
+import online.fycloud.webapi.core.exception.ServerException;
 import online.fycloud.webapi.core.service.UserService;
 import online.fycloud.webapi.core.service.UserSignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class LoginController {
     @LimitRequest(time = 5000, count = 3)
     @PostMapping("/login")
     public R<String> login(HttpServletRequest request,
-                           @RequestBody @Validated SignInUser user) {
+                           @RequestBody @Validated SignInUser user) throws ServerException {
         Object obj = request.getSession().getAttribute(LOGIN_USER);
         if (obj != null) {
             return R.success("用户已登录!");
@@ -57,7 +58,7 @@ public class LoginController {
             request.getSession().setAttribute(LOGIN_USER, loginUser);
             return R.success("登录成功");
         }
-        return R.error((String) object);
+        throw new ServerException(((String) object));
     }
 
     /**
@@ -70,22 +71,22 @@ public class LoginController {
     @LimitRequest
     @PostMapping("/register")
     public Object register(HttpServletRequest request,
-                           @RequestBody @Validated SignUpUser user) {
+                           @RequestBody @Validated SignUpUser user) throws ServerException {
         String verifyCode;
         try {
             Object obj = request.getSession(false).getAttribute(VERIFY_CODE);
             verifyCode = (String) obj;
         } catch (NullPointerException e) {
-            return R.error("请先获取验证码！");
+            throw new ServerException("请先获取验证码！");
         }
         if (!verifyCode.equals(user.getVerify())) {
-            return R.error("验证码错误！");
+            throw new ServerException("验证码错误！");
         }
         String msg = userService.register(user);
         if (msg == null) {
             return R.success("注册成功！");
         }
-        return R.error(msg);
+        throw new ServerException(msg);
     }
 
     /**
@@ -96,9 +97,9 @@ public class LoginController {
      */
     @LimitRequest
     @GetMapping("/logout")
-    public R<String> logout(HttpServletRequest request) {
+    public R<String> logout(HttpServletRequest request) throws ServerException {
         if (request.getSession().getAttribute(LOGIN_USER) == null) {
-            return R.error("未登录！");
+            throw new ServerException("未登录！");
         }
         request.getSession().removeAttribute(LOGIN_USER);
         return R.success();
@@ -131,12 +132,17 @@ public class LoginController {
     @CheckLogin
     @LimitRequest
     @GetMapping("/sign")
-    public R<String> sign(HttpServletRequest request) {
+    public R<String> sign(HttpServletRequest request) throws ServerException {
         LoginUser loginUser = (LoginUser) request.getSession(false).getAttribute(LOGIN_USER);
         if (loginUser == null) {
             log.error("签到失败！loginUser为空！");
+            throw new ServerException("签到失败，请先登录再进行操作！");
         }
         String msg = userSignService.sign(loginUser);
-        return R.error(msg);
+        if (msg != null) {
+            return R.success(msg);
+        } else {
+            throw new ServerException("签到失败！");
+        }
     }
 }

@@ -53,6 +53,6 @@ public class UserSignServiceImpl extends ServiceImpl<UserSignMapper, UserSign> i
             }
         }
         log.error("签到出错！");
-        return "签到失败";
+        return null;
     }
 }

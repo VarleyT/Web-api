@@ -26,9 +26,10 @@ public class R<T> {
      */
     @JSONField(ordinal = 3)
     private T data;
+
     public static <T> R<T> success() {
         R<T> r = new R<>();
-        r.code = 200;
+        r.code = 1;
         r.msg = "success";
         r.data = null;
         return r;
@@ -36,7 +37,7 @@ public class R<T> {
 
     public static <T> R<T> success(T object) {
         R<T> r = new R<>();
-        r.code = 200;
+        r.code = 1;
         r.msg = "success";
         r.data = object;
         return r;
@@ -44,23 +45,16 @@ public class R<T> {
 
     public static <T> R<T> error(String errorMessage) {
         R<T> r = new R<>();
-        r.code = 500;
+        r.code = -1;
         r.msg = errorMessage;
         r.data = null;
         return r;
     }
 
-    public static <T> R<T> error(int code, String errorMessage) {
-        R<T> r = new R<>();
-        r.code = code;
-        r.msg = errorMessage;
-        r.data = null;
-        return r;
-    }
 
-    public static <T> R<T> error(int code, String errorMessage, T data) {
+    public static <T> R<T> error(String errorMessage, T data) {
         R<T> r = new R<>();
-        r.code = code;
+        r.code = -1;
         r.msg = errorMessage;
         r.data = data;
         return r;

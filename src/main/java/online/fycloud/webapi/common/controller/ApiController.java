@@ -1,7 +1,6 @@
 package online.fycloud.webapi.common.controller;
 
 import cn.hutool.core.util.ReUtil;
-import cn.hutool.http.HttpStatus;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,12 @@ import online.fycloud.webapi.common.logic.GenShinAnalyse;
 import online.fycloud.webapi.common.service.FreeGameService;
 import online.fycloud.webapi.core.annotation.LimitRequest;
 import online.fycloud.webapi.core.common.R;
+import online.fycloud.webapi.core.exception.ErrorCodes;
+import online.fycloud.webapi.core.exception.ServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -35,14 +35,13 @@ public class ApiController {
      *
      * @param getUrl
      * @param map
-     * @param response
      * @return
      */
+
     @LimitRequest
     @RequestMapping(value = "/douyin", method = {RequestMethod.GET, RequestMethod.POST})
     public R<DouYin> douyin(@RequestParam(name = "url", required = false) String getUrl,
-                            @RequestBody(required = false) Map<String, String> map,
-                            HttpServletResponse response) {
+                            @RequestBody(required = false) Map<String, String> map) throws ServerException {
         final String REGEX = "https://v\\.douyin\\.com/\\w{7}/";
         List<String> list = null;
         if (getUrl != null && getUrl.length() > 0) {
@@ -54,20 +53,17 @@ public class ApiController {
                     list = ReUtil.findAll(REGEX, url, 0);
                 }
             } else {
-                response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
-                return R.error("缺少请求参数！");
+                throw new ServerException(ErrorCodes.INPUT_ERROR, "缺少请求参数");
             }
         }
         if (list != null && list.isEmpty()) {
             log.info("不是一个正确的链接：getUrl: {}, map: {}", getUrl, map);
-            response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
-            return R.error("错误的抖音链接！请检查链接是否正确或者是否包含（#、&）");
+            throw new ServerException(ErrorCodes.INPUT_ERROR, "错误的抖音链接！请检查链接是否正确或者是否包含（#、&）");
         }
         String originalUrl = list.get(0);
         DouYin douyin = DouYinParse.parse(originalUrl);
         if (douyin == null) {
-            response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
-            return R.error("解析失败！");
+            throw new ServerException(ErrorCodes.HANDLE_ERROR, "解析失败！");
         }
         return R.success(douyin);
     }
@@ -79,8 +75,7 @@ public class ApiController {
      */
     @LimitRequest
     @PostMapping("/genshin")
-    public R<GenShinPrayInfo> genshin(@RequestBody @Validated GenShinRequestUrl genShinRequestUrl,
-                                      HttpServletResponse response) {
+    public R<GenShinPrayInfo> genshin(@RequestBody @Validated GenShinRequestUrl genShinRequestUrl) throws ServerException {
         // 添加正则校验，防止URL跳转攻击。保险起见，同时也应关闭重定向
         String url = genShinRequestUrl.getUrl();
         GenShinAnalyse genShinAnalyse = new GenShinAnalyse(url);
@@ -89,8 +84,7 @@ public class ApiController {
             genShinPrayInfo = genShinAnalyse.analyse();
         } catch (Exception e) {
             log.error("原神抽卡分析发生错误：{}", e.toString());
-            response.setStatus(HttpStatus.HTTP_INTERNAL_ERROR);
-            return R.error("获取数据失败，请检查链接是否有效，或者稍后重试");
+            throw new ServerException(ErrorCodes.HANDLE_ERROR, "获取数据失败，请检查链接是否有效，或者稍后重试");
         }
         return R.success(genShinPrayInfo);
     }

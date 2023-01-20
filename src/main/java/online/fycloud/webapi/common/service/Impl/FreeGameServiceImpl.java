@@ -2,7 +2,7 @@ package online.fycloud.webapi.common.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import online.fycloud.webapi.common.entity.FreeGame;
+import online.fycloud.webapi.common.data.entity.FreeGame;
 import online.fycloud.webapi.common.mapper.FreeGameMapper;
 import online.fycloud.webapi.common.service.FreeGameService;
 import org.springframework.stereotype.Service;

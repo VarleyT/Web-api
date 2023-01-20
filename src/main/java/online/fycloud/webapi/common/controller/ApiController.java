@@ -1,13 +1,12 @@
 package online.fycloud.webapi.common.controller;
 
-import cn.hutool.core.util.ReUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONWriter;
 import lombok.extern.slf4j.Slf4j;
 import online.fycloud.webapi.common.data.douyin.DouYin;
+import online.fycloud.webapi.common.data.entity.FreeGame;
 import online.fycloud.webapi.common.data.genshin.GenShinPrayInfo;
 import online.fycloud.webapi.common.data.genshin.GenShinRequestUrl;
-import online.fycloud.webapi.common.entity.FreeGame;
 import online.fycloud.webapi.common.logic.DouYinParse;
 import online.fycloud.webapi.common.logic.GenShinAnalyse;
 import online.fycloud.webapi.common.service.FreeGameService;
@@ -20,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author VarleyT
@@ -30,41 +28,18 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = {"/API", "/api"})
 public class ApiController {
+
     /**
      * 抖音视频解析
      *
-     * @param getUrl
-     * @param map
+     * @param url
      * @return
+     * @throws ServerException
      */
-
     @LimitRequest
-    @RequestMapping(value = "/douyin", method = {RequestMethod.GET, RequestMethod.POST})
-    public R<DouYin> douyin(@RequestParam(name = "url", required = false) String getUrl,
-                            @RequestBody(required = false) Map<String, String> map) throws ServerException {
-        final String REGEX = "https://v\\.douyin\\.com/\\w{7}/";
-        List<String> list = null;
-        if (getUrl != null && getUrl.length() > 0) {
-            list = ReUtil.findAll(REGEX, getUrl, 0);
-        } else {
-            if (map != null && map.size() != 0) {
-                if (map.containsKey("url")) {
-                    String url = map.get("url");
-                    list = ReUtil.findAll(REGEX, url, 0);
-                }
-            } else {
-                throw new ServerException(ErrorCodes.INPUT_ERROR, "缺少请求参数");
-            }
-        }
-        if (list != null && list.isEmpty()) {
-            log.info("不是一个正确的链接：getUrl: {}, map: {}", getUrl, map);
-            throw new ServerException(ErrorCodes.INPUT_ERROR, "错误的抖音链接！请检查链接是否正确或者是否包含（#、&）");
-        }
-        String originalUrl = list.get(0);
-        DouYin douyin = DouYinParse.parse(originalUrl);
-        if (douyin == null) {
-            throw new ServerException(ErrorCodes.HANDLE_ERROR, "解析失败！");
-        }
+    @PostMapping("/douyin")
+    public R<DouYin> douyin(@RequestBody String url) throws ServerException {
+        DouYin douyin = DouYinParse.parse(url);
         return R.success(douyin);
     }
 
@@ -95,6 +70,6 @@ public class ApiController {
     @GetMapping("/freegame")
     public String freeGame() {
         List<FreeGame> list = freeGameService.getInfos();
-        return JSON.toJSONString(R.success(list), SerializerFeature.WriteNullListAsEmpty);
+        return JSON.toJSONString(R.success(list), JSONWriter.Feature.WriteNullListAsEmpty);
     }
 }

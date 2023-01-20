@@ -1,7 +1,7 @@
 package online.fycloud.webapi.common.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import online.fycloud.webapi.common.entity.FreeGame;
+import online.fycloud.webapi.common.data.entity.FreeGame;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

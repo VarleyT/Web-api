@@ -6,15 +6,15 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * @author VarleyT
+ * @date 2023/1/19
+ */
 @Data
 @AllArgsConstructor
-public class Urls implements Serializable {
+public class Image implements Serializable {
     /**
-     * 路径
+     * 图片集合
      */
-    private String uri;
-    /**
-     * 地址
-     */
-    private List<String> url_list;
+    List<Urls> images;
 }

@@ -6,7 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import online.fycloud.webapi.common.entity.FreeGame;
+import online.fycloud.webapi.common.data.entity.FreeGame;
 import online.fycloud.webapi.common.service.FreeGameService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

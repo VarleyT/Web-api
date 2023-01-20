@@ -21,10 +21,6 @@ public class DouYin implements Serializable {
      */
     private long create_time;
     /**
-     * 播放地址
-     */
-    private String play_url;
-    /**
      * 作者
      */
     private Author author;
@@ -36,4 +32,8 @@ public class DouYin implements Serializable {
      * 视频
      */
     private Video video;
+    /**
+     * 图片
+     */
+    private Image image;
 }

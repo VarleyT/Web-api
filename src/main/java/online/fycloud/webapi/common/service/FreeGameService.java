@@ -1,7 +1,7 @@
 package online.fycloud.webapi.common.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import online.fycloud.webapi.common.entity.FreeGame;
+import online.fycloud.webapi.common.data.entity.FreeGame;
 
 import java.util.List;
 

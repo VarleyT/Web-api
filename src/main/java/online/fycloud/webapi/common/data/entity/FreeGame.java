@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -17,7 +17,7 @@ import java.util.Date;
  *
  * @author VarleyT
  */
-@Data
+@Getter
 @AllArgsConstructor
 @TableName(value = "free_game")
 public class FreeGame implements Serializable {
@@ -31,46 +31,46 @@ public class FreeGame implements Serializable {
     /**
      * 游戏名
      */
-    @JSONField(ordinal = 1)
+    @JSONField(ordinal = 1, name = "game_name")
     private String gameName;
 
     /**
-     * 链接
+     * 游戏介绍
      */
-    @JSONField(ordinal = 3)
-    private String url;
+    @JSONField(ordinal = 2, name = "game_desc")
+    private String gameDesc;
 
     /**
-     * 类型
+     * 跳转链接
      */
-    @JSONField(ordinal = 4)
-    private String type;
+    @JSONField(ordinal = 3, name = "store_url")
+    private String storeUrl;
+
+    /**
+     * 图片链接
+     */
+    @JSONField(ordinal = 4, name = "img_url")
+    private String imgUrl;
 
     /**
      * 开始时间
      */
-    @JSONField(ordinal = 5, format = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(ordinal = 5, format = "yyyy-MM-dd HH:mm:ss", name = "start_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /**
      * 结束时间
      */
-    @JSONField(ordinal = 6, format = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(ordinal = 6, format = "yyyy-MM-dd HH:mm:ss", name = "end_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /**
-     * 是否永久
+     * 有效
      */
-    @JSONField(ordinal = 7, name = "forever")
-    private boolean valid;
-
-    /**
-     * 游戏平台
-     */
-    @JSONField(ordinal = 2)
-    private String store;
+    @JSONField(serialize = false)
+    private boolean del;
 
     @TableField(exist = false)
     @JSONField(serialize = false)

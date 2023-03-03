@@ -19,5 +19,9 @@ public class Music implements Serializable {
     /**
      * 封面(普通质量)
      */
-    private Urls cover_medium;
+    private Urls cover;
+    /**
+     * 播放地址
+     */
+    private Urls play_addr;
 }

@@ -57,6 +57,8 @@ public class DouYinParse {
             if (IMAGE_TYPE_LIST.contains(aweme_type)) {
                 isVideo = false;
             }
+            desc = detail.getString("desc");
+            createTime = detail.getLongValue("create_time");
 
             // 作者
             JSONObject authorObj = detail.getJSONObject("author");
@@ -77,9 +79,6 @@ public class DouYinParse {
                 String videoCoverUri = videoCoverObj.getString("uri");
                 List<String> videoCoverUrlList = videoCoverObj.getList("url_list", String.class);
                 video = new Video(new Urls(videoUri, videoUrlList), new Urls(videoCoverUri, videoCoverUrlList));
-
-                desc = detail.getString("desc");
-                createTime = detail.getLongValue("create_time");
             } else {
                 // 图片
                 List<Urls> imageList = new LinkedList<>();
@@ -95,19 +94,31 @@ public class DouYinParse {
 
             // 音乐
             JSONObject musicObj = detail.getJSONObject("music");
-            String musicTitle = musicObj.getString("title");
-            String musicAuthor = musicObj.getString("author");
-            JSONObject musicAvatar = musicObj.getJSONObject("avatar_medium");
-            // 图文
-            if (musicAvatar != null) {
-                String musicUri = musicAvatar.getString("uri");
-                List<String> musicUrlList = musicAvatar.getList("url_list", String.class);
-                music = new Music(musicTitle, musicAuthor, new Urls(musicUri, musicUrlList));
-            } else { // 笔记note
+            if (musicObj != null) {
+                String musicTitle = musicObj.getString("title");
+                String musicAuthor = musicObj.getString("author");
+                JSONObject musicAvatar = musicObj.getJSONObject("avatar_medium");
+
+                String musicCoverUri;
+                List<String> musicCoverUrlList;
+                String musicPlayUri;
+                List<String> musicPlayUrlList;
+                // 视频BGM封面
+                if (musicAvatar != null) {
+                    musicCoverUri = musicAvatar.getString("uri");
+                    musicCoverUrlList = musicAvatar.getList("url_list", String.class);
+                } else { // 图文BGM
+                    JSONObject musicCover = musicObj.getJSONObject("cover_medium");
+                    musicCoverUri = musicCover.getString("uri");
+                    musicCoverUrlList = musicCover.getList("url_list", String.class);
+                }
                 JSONObject musicPlayAddr = musicObj.getJSONObject("play_url");
-                String musicUri = musicPlayAddr.getString("uri");
-                List<String> musicUrlList = musicPlayAddr.getList("url_list", String.class);
-                music = new Music(musicTitle, musicAuthor, new Urls(musicUri, musicUrlList));
+                musicPlayUri = musicPlayAddr.getString("uri");
+                musicPlayUrlList = musicPlayAddr.getList("url_list", String.class);
+                music = new Music(musicTitle,
+                        musicAuthor,
+                        new Urls(musicCoverUri, musicCoverUrlList),
+                        new Urls(musicPlayUri, musicPlayUrlList));
             }
         } catch (Exception e) {
             log.error("解析抖音视频时出错！Cased by: \n{}", e.getMessage());

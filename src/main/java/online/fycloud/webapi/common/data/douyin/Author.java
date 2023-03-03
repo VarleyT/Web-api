@@ -19,5 +19,5 @@ public class Author implements Serializable {
     /**
      * 头像(普通质量)
      */
-    private Urls avatar_medium;
+    private Urls avatar;
 }
